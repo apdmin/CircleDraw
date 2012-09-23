@@ -20,6 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JWindow;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 
@@ -35,6 +36,7 @@ public class CircleDraw
   {
     frame = new JFrame("Circle Draw");
     frame.setSize(new Dimension(800, 600));
+    frame.setLocationRelativeTo(null);
 
     addComponentsToPane(frame.getContentPane());
     frame.setVisible(true);
@@ -98,8 +100,15 @@ public class CircleDraw
     SpringLayout inputPanelLayout = new SpringLayout();
     inputPanel.setLayout(inputPanelLayout);
 
+    JFrame secondaryFrame = new JFrame("Color Chooser");
+    secondaryFrame.setAlwaysOnTop(true);
+    secondaryFrame.setResizable(false);
+    //secondaryFrame.setDefaultLookAndFeelDecorated(true);
     JColorChooser colorChooser = new JColorChooser(Color.black);
-    colorChooser.setVisible(true);
+    secondaryFrame.add(colorChooser);
+    secondaryFrame.pack();
+    secondaryFrame.setLocationRelativeTo(null);
+    secondaryFrame.setVisible(true);
 
 
     JSlider leftSlider = new JSlider();
@@ -111,11 +120,9 @@ public class CircleDraw
     */
     JSlider bottomSlider = new JSlider();
     JSlider sizeSlider = new JSlider();
-    JButton button = new JButton("Show");
-    button.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-    JComboBox dropDown = new JComboBox();
-    dropDown.addItem("Red");
-    dropDown.addItem("Blue");
+    JButton showButton = new JButton("Show");
+    showButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+    JButton colorButton = new JButton("Color Chooser");
 
 
     //Layout Setup
@@ -125,15 +132,15 @@ public class CircleDraw
     int xMargin = 5;
     int yMargin = 5;
 
-    frameLayout.putConstraint(SpringLayout.SOUTH, dropDown, -1*yMargin, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.WEST, dropDown, xMargin, SpringLayout.WEST, contentPane);
+    frameLayout.putConstraint(SpringLayout.SOUTH, colorButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
+    frameLayout.putConstraint(SpringLayout.WEST, colorButton, xMargin, SpringLayout.WEST, contentPane);
 
-    frameLayout.putConstraint(SpringLayout.SOUTH, button, -1*yMargin, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.EAST, button, -1*xMargin, SpringLayout.EAST, contentPane);
+    frameLayout.putConstraint(SpringLayout.SOUTH, showButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
+    frameLayout.putConstraint(SpringLayout.EAST, showButton, -1*xMargin, SpringLayout.EAST, contentPane);
 
     frameLayout.putConstraint(SpringLayout.SOUTH, sizeSlider, -1*yMargin, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.EAST, sizeSlider, 0, SpringLayout.WEST, button);
-    frameLayout.putConstraint(SpringLayout.WEST, sizeSlider, 0, SpringLayout.EAST, dropDown);
+    frameLayout.putConstraint(SpringLayout.EAST, sizeSlider, 0, SpringLayout.WEST, showButton);
+    frameLayout.putConstraint(SpringLayout.WEST, sizeSlider, 0, SpringLayout.EAST, colorButton);
 
     frameLayout.putConstraint(SpringLayout.SOUTH, bottomSlider, 0, SpringLayout.NORTH, sizeSlider);
     frameLayout.putConstraint(SpringLayout.EAST, bottomSlider, -1*xMargin,  SpringLayout.EAST, contentPane);
@@ -157,8 +164,8 @@ public class CircleDraw
     contentPane.add(leftSlider);
     contentPane.add(bottomSlider);
     contentPane.add(sizeSlider);
-    contentPane.add(dropDown);
-    contentPane.add(button);
+    contentPane.add(colorButton);
+    contentPane.add(showButton);
     /*
     contentPane.add(rightSlider, BorderLayout.LINE_END);
     contentPane.add(topSlider, BorderLayout.PAGE_START);
@@ -171,13 +178,13 @@ public class CircleDraw
     inputPanelLayout.putConstraint(SpringLayout.NORTH, dropDown, 0, SpringLayout.SOUTH, bottomSlider);
     inputPanelLayout.putConstraint(SpringLayout.SOUTH, dropDown, 0, SpringLayout.SOUTH, inputPanel);
     inputPanelLayout.putConstraint(SpringLayout.EAST, dropDown, 0, SpringLayout.HORIZONTAL_CENTER, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.NORTH, button, 0, SpringLayout.SOUTH, bottomSlider);
-    inputPanelLayout.putConstraint(SpringLayout.WEST, button, 0, SpringLayout.HORIZONTAL_CENTER, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.SOUTH, button, 0, SpringLayout.SOUTH, inputPanel);
+    inputPanelLayout.putConstraint(SpringLayout.NORTH, showButton, 0, SpringLayout.SOUTH, bottomSlider);
+    inputPanelLayout.putConstraint(SpringLayout.WEST, showButton, 0, SpringLayout.HORIZONTAL_CENTER, inputPanel);
+    inputPanelLayout.putConstraint(SpringLayout.SOUTH, showButton, 0, SpringLayout.SOUTH, inputPanel);
     inputPanel.add(bottomSlider);
     //inputPanel.setPreferredSize(new Dimension(frame.getWidth(), 60));
     inputPanel.add(dropDown);
-    inputPanel.add(button);
+    inputPanel.add(showButton);
     */
 
     //contentPane.add(inputPanel, BorderLayout.PAGE_END);
