@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -96,6 +97,9 @@ public class CircleDraw
     JPanel inputPanel = new JPanel();
     SpringLayout inputPanelLayout = new SpringLayout();
     inputPanel.setLayout(inputPanelLayout);
+
+    JColorChooser colorChooser = new JColorChooser(Color.black);
+    colorChooser.setVisible(true);
 
 
     JSlider leftSlider = new JSlider();
