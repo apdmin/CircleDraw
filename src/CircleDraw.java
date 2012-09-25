@@ -7,10 +7,11 @@ Fall 2012
 //package csc420.hw2;
 
 import java.awt.BorderLayout;
-import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.Graphics;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -23,10 +24,17 @@ import javax.swing.JSlider;
 import javax.swing.JWindow;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 public class CircleDraw
 {
-  private static JFrame frame;
+
+
+  private static JFrame frame, colorChooserFrame;
+  private static JColorChooser colorChooser;
+  private static CustomCanvas canvas;
+  private static JSlider leftSlider, bottomSlider, sizeSlider;
+  private static JButton showButton;
 
 
 
@@ -35,11 +43,68 @@ public class CircleDraw
   private static void createAndShowGUI()
   {
     frame = new JFrame("Circle Draw");
-    frame.setSize(new Dimension(800, 600));
-    frame.setLocationRelativeTo(null);
-
+    frame.setPreferredSize(new Dimension(800, 600));
     addComponentsToPane(frame.getContentPane());
+    frame.pack();
+    frame.setLocationRelativeTo(null);
     frame.setVisible(true);
+  }
+
+
+
+  private static void showCircle()
+  {
+    if (showButton.getText().equals("Show"))
+    {
+      Integer inputY = new Integer(leftSlider.getValue());
+      Integer inputX = new Integer(bottomSlider.getValue());
+      System.out.println(inputY);
+      System.out.println(inputX);
+      double yProportion = inputY.doubleValue()/100;
+      double xProportion = inputX.doubleValue()/100;
+      System.out.println("yProportion = " + yProportion);
+      System.out.println("xProportion = " + xProportion);
+      int canvasHeight = canvas.getHeight();
+      int canvasWidth = canvas.getWidth();
+      int xCoordinate = (int)(canvasWidth*xProportion);
+      int yCoordinate = (int)(canvasHeight*(1-yProportion));
+      canvas.setCircleCoordinates(xCoordinate, yCoordinate);
+      canvas.setCircleRadius(sizeSlider.getValue());
+      canvas.setFilled(true);
+      canvas.setHidden(false);
+      canvas.repaint();
+      showButton.setText("Hide");
+    }
+    else if (showButton.getText().equals("Hide"))
+    {
+      canvas.setHidden(true);
+      canvas.repaint();
+      showButton.setText("Show");
+    }
+    else
+    {
+      //Throw some exception
+    }
+  }
+
+
+  
+  private static void displayColorChooser()
+  {
+    if (colorChooserFrame == null)
+    {
+      colorChooserFrame = new JFrame("Color Chooser");
+      colorChooserFrame.setAlwaysOnTop(true);
+      colorChooserFrame.setResizable(false);
+      colorChooser = new JColorChooser(Color.black);
+      colorChooserFrame.add(colorChooser);
+      colorChooserFrame.pack();
+      colorChooserFrame.setLocationRelativeTo(null);
+    }
+    if (!colorChooserFrame.isVisible())
+    {
+      colorChooserFrame.setVisible(true);
+    }
   }
 
 
@@ -48,85 +113,69 @@ public class CircleDraw
 
   private static void addComponentsToPane(Container contentPane)
   {
-    Canvas canvas = new Canvas()
-    {
-      private int x, y, diameter;
-      private boolean filled;
-      private Color color;
-
-      public void setCircleCoordinates(int x, int y)
-      {
-        this.x = x;
-        this.y = y;
-      }
-      public void setCircleDiameter(int diameter) { this.diameter = diameter; }
-      public void setFilled(boolean filled) { this.filled = filled; }
-      public void setColor(int color)
-      {
-        switch(color)
-        {
-          case 0:
-            this.color = Color.red;
-            break;
-          case 1:
-            this.color = Color.blue;
-            break;
-          default:
-            this.color = Color.black;
-        }
-      }
-
-      public void paint(Graphics g)
-      {
-        g.setColor(Color.black);
-        g.drawRect(0, 0, this.getWidth()-1, this.getHeight()-1);
-        g.setColor(color);
-        if (filled)
-        {
-          g.fillOval(x, y, diameter, diameter);
-        }
-        else
-        {
-          g.drawOval(x, y, diameter, diameter);
-        }
-      }
-    };
-
-
-
+    canvas = new CustomCanvas();
     SpringLayout frameLayout = new SpringLayout();
     frame.setLayout(frameLayout);
+    /*
     JPanel inputPanel = new JPanel();
     SpringLayout inputPanelLayout = new SpringLayout();
     inputPanel.setLayout(inputPanelLayout);
-
-    JFrame secondaryFrame = new JFrame("Color Chooser");
-    secondaryFrame.setAlwaysOnTop(true);
-    secondaryFrame.setResizable(false);
-    //secondaryFrame.setDefaultLookAndFeelDecorated(true);
-    JColorChooser colorChooser = new JColorChooser(Color.black);
-    secondaryFrame.add(colorChooser);
-    secondaryFrame.pack();
-    secondaryFrame.setLocationRelativeTo(null);
-    secondaryFrame.setVisible(true);
+    */
 
 
-    JSlider leftSlider = new JSlider();
+
+    leftSlider = new JSlider();
     leftSlider.setOrientation(SwingConstants.VERTICAL);
+    leftSlider.setMinimum(0);
+    leftSlider.setMaximum(100);
     /*
     JSlider rightSlider = new JSlider();
     rightSlider.setOrientation(SwingConstants.VERTICAL);
     JSlider topSlider = new JSlider();
     */
-    JSlider bottomSlider = new JSlider();
-    JSlider sizeSlider = new JSlider();
-    JButton showButton = new JButton("Show");
+    bottomSlider = new JSlider();
+    bottomSlider.setMinimum(0);
+    bottomSlider.setMaximum(100);
+    sizeSlider = new JSlider();
+    sizeSlider.setMinimum(5);
+    sizeSlider.setMaximum(300);
+    showButton = new JButton("Show");
     showButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
     JButton colorButton = new JButton("Color Chooser");
 
 
+    //Add ActionListeners
+    showButton.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+          public void run()
+          {
+            showCircle();
+          }
+        });
+      }
+    });
+
+    colorButton.addActionListener(new ActionListener()
+    {
+      public void actionPerformed(ActionEvent e)
+      {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+          public void run()
+          {
+            displayColorChooser();
+          }
+        });
+      }
+    });
+
+
     //Layout Setup
-    int cornerSquare = 10;
+    //int cornerSquare = 10;
     int sliderYMargin = 14;
     int sliderXMargin = 13;
     int xMargin = 5;
@@ -156,9 +205,11 @@ public class CircleDraw
     frameLayout.putConstraint(SpringLayout.EAST, canvas, -1*sliderXMargin-xMargin, SpringLayout.EAST, contentPane);
     frameLayout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.EAST, leftSlider);
 
+    /*
     frameLayout.putConstraint(SpringLayout.SOUTH, inputPanel, 0, SpringLayout.SOUTH, contentPane);
     frameLayout.putConstraint(SpringLayout.EAST, inputPanel, 0, SpringLayout.EAST, contentPane);
     frameLayout.putConstraint(SpringLayout.WEST, inputPanel, cornerSquare, SpringLayout.WEST, contentPane);
+    */
 
     contentPane.add(canvas);
     contentPane.add(leftSlider);
@@ -191,7 +242,7 @@ public class CircleDraw
   }
   public static void main(String[] args)
   {
-    javax.swing.SwingUtilities.invokeLater(new Runnable()
+    SwingUtilities.invokeLater(new Runnable()
     {
       public void run()
       {
