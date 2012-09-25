@@ -18,6 +18,7 @@ public class CustomCanvas extends Canvas
 
   public void setCircleCoordinates(int x, int y) { this.x = x; this.y = y; }
   public void setCircleRadius(int radius) { this.radius = radius; }
+  public int getCircleRadius() { return radius; }
   public void setFilled(boolean filled) { this.filled = filled; }
   public void setHidden(boolean hidden) { this.hidden = hidden; }
   public void setColor(Color color) { this.color = color; }

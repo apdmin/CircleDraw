@@ -15,6 +15,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.Graphics;
 import java.awt.Point;
 import javax.swing.BoxLayout;
@@ -60,6 +62,14 @@ public class CircleDraw
   }
 
 
+
+  public static void resizeCircle(int amountToChangeRadius)
+  {
+    if (showButton.getText().equals("Hide"))
+    {
+      sizeSlider.setValue(canvas.getCircleRadius()-amountToChangeRadius);
+    }
+  }
 
   public static void positionAndDrawCircle(int x, int y)
   {
@@ -210,7 +220,7 @@ public class CircleDraw
     JButton colorButton = new JButton("Color Chooser");
 
 
-    //Add ActionListeners
+    //Add Listeners
     canvas.addMouseMotionListener(new MouseMotionListener()
     {
       public void mouseDragged(MouseEvent e)
@@ -219,6 +229,14 @@ public class CircleDraw
         positionAndDrawCircle(point.x, point.y);
       }
       public void mouseMoved(MouseEvent e) {}
+    });
+    canvas.addMouseWheelListener(new MouseWheelListener()
+    {
+      public void mouseWheelMoved(MouseWheelEvent e)
+      {
+        int unitsToScroll = e.getUnitsToScroll();
+        resizeCircle(unitsToScroll);
+      }
     });
     SliderChangeListener changeListener = new SliderChangeListener();
     leftSlider.addChangeListener(changeListener);
