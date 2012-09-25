@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.Graphics;
 import java.awt.Point;
 import javax.swing.BoxLayout;
@@ -60,6 +61,20 @@ public class CircleDraw
 
 
 
+  public static void positionAndDrawCircle(int x, int y)
+  {
+    if (showButton.getText().equals("Hide"))
+    {
+      Integer canvasHeight = new Integer(canvas.getHeight());
+      Integer canvasWidth = new Integer(canvas.getWidth());
+      Integer xCoord = new Integer(x);
+      Integer yCoord = new Integer(y);
+      double yProportion = yCoord.doubleValue()/canvasHeight.doubleValue();
+      double xProportion = xCoord.doubleValue()/canvasWidth.doubleValue();
+      leftSlider.setValue((int)((1-yProportion)*sliderGradient));
+      bottomSlider.setValue((int)(xProportion*sliderGradient));
+    }
+  }
   public static void drawCircle()
   {
     if (showButton.getText().equals("Hide"))
@@ -196,17 +211,14 @@ public class CircleDraw
 
 
     //Add ActionListeners
-    canvas.addMouseListener(new MouseListener()
+    canvas.addMouseMotionListener(new MouseMotionListener()
     {
-      public void mouseClicked(MouseEvent e) {}
-      public void mouseExited(MouseEvent e) {}
-      public void mouseEntered(MouseEvent e) {}
-      public void mousePressed(MouseEvent e)
+      public void mouseDragged(MouseEvent e)
       {
         Point point = e.getPoint();
-        drawCircle(point.x, point.y);
+        positionAndDrawCircle(point.x, point.y);
       }
-      public void mouseReleased(MouseEvent e) {}
+      public void mouseMoved(MouseEvent e) {}
     });
     SliderChangeListener changeListener = new SliderChangeListener();
     leftSlider.addChangeListener(changeListener);
