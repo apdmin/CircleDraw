@@ -14,6 +14,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Graphics;
 import javax.swing.BoxLayout;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
@@ -25,6 +27,7 @@ import javax.swing.JWindow;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 public class CircleDraw
 {
@@ -35,6 +38,7 @@ public class CircleDraw
   private static CustomCanvas canvas;
   private static JSlider leftSlider, bottomSlider, sizeSlider;
   private static JButton showButton;
+  private static int sliderGradient;
 
 
 
@@ -44,6 +48,7 @@ public class CircleDraw
   {
     frame = new JFrame("Circle Draw");
     frame.setPreferredSize(new Dimension(800, 600));
+    sliderGradient = 2000;
     addComponentsToPane(frame.getContentPane());
     frame.pack();
     frame.setLocationRelativeTo(null);
@@ -52,28 +57,41 @@ public class CircleDraw
 
 
 
-  private static void showCircle()
+  public static void drawCircle()
   {
-    if (showButton.getText().equals("Show"))
+    if (showButton.getText().equals("Hide"))
     {
       Integer inputY = new Integer(leftSlider.getValue());
       Integer inputX = new Integer(bottomSlider.getValue());
       System.out.println(inputY);
       System.out.println(inputX);
-      double yProportion = inputY.doubleValue()/100;
-      double xProportion = inputX.doubleValue()/100;
+      double yProportion = inputY.doubleValue()/sliderGradient;
+      double xProportion = inputX.doubleValue()/sliderGradient;
       System.out.println("yProportion = " + yProportion);
       System.out.println("xProportion = " + xProportion);
       int canvasHeight = canvas.getHeight();
       int canvasWidth = canvas.getWidth();
       int xCoordinate = (int)(canvasWidth*xProportion);
       int yCoordinate = (int)(canvasHeight*(1-yProportion));
-      canvas.setCircleCoordinates(xCoordinate, yCoordinate);
-      canvas.setCircleRadius(sizeSlider.getValue());
-      canvas.setFilled(true);
-      canvas.setHidden(false);
-      canvas.repaint();
+      drawCircle(xCoordinate, yCoordinate, sizeSlider.getValue());
+    }
+  }
+  public static void drawCircle(int x, int y, int radius)
+  {
+    canvas.setCircleCoordinates(x, y);
+    canvas.setCircleRadius(radius);
+    canvas.setFilled(true);
+    canvas.setHidden(false);
+    canvas.repaint();
+  }
+
+
+  private static void showCircle()
+  {
+    if (showButton.getText().equals("Show"))
+    {
       showButton.setText("Hide");
+      drawCircle();
     }
     else if (showButton.getText().equals("Hide"))
     {
@@ -127,7 +145,8 @@ public class CircleDraw
     leftSlider = new JSlider();
     leftSlider.setOrientation(SwingConstants.VERTICAL);
     leftSlider.setMinimum(0);
-    leftSlider.setMaximum(100);
+    leftSlider.setMaximum(sliderGradient);
+    leftSlider.setValue(sliderGradient/2);
     /*
     JSlider rightSlider = new JSlider();
     rightSlider.setOrientation(SwingConstants.VERTICAL);
@@ -135,16 +154,22 @@ public class CircleDraw
     */
     bottomSlider = new JSlider();
     bottomSlider.setMinimum(0);
-    bottomSlider.setMaximum(100);
+    bottomSlider.setMaximum(sliderGradient);
+    bottomSlider.setValue(sliderGradient/2);
     sizeSlider = new JSlider();
     sizeSlider.setMinimum(5);
     sizeSlider.setMaximum(300);
+    sizeSlider.setValue(50);
     showButton = new JButton("Show");
     showButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
     JButton colorButton = new JButton("Color Chooser");
 
 
     //Add ActionListeners
+    SliderChangeListener changeListener = new SliderChangeListener();
+    leftSlider.addChangeListener(changeListener);
+    bottomSlider.addChangeListener(changeListener);
+    sizeSlider.addChangeListener(changeListener);
     showButton.addActionListener(new ActionListener()
     {
       public void actionPerformed(ActionEvent e)
