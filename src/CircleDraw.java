@@ -12,7 +12,10 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.Graphics;
+import java.awt.Point;
 import javax.swing.BoxLayout;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -73,13 +76,27 @@ public class CircleDraw
       int canvasWidth = canvas.getWidth();
       int xCoordinate = (int)(canvasWidth*xProportion);
       int yCoordinate = (int)(canvasHeight*(1-yProportion));
-      drawCircle(xCoordinate, yCoordinate, sizeSlider.getValue());
+      Color color;
+      if (colorChooser == null)
+      {
+        color = Color.black;
+      }
+      else
+      {
+        color = colorChooser.getColor();
+      }
+      drawCircle(xCoordinate, yCoordinate, sizeSlider.getValue(), color);
     }
   }
-  public static void drawCircle(int x, int y, int radius)
+  public static void drawCircle(int x, int y)
+  {
+    drawCircle(x, y, sizeSlider.getValue(), null);
+  }
+  public static void drawCircle(int x, int y, int radius, Color color)
   {
     canvas.setCircleCoordinates(x, y);
     canvas.setCircleRadius(radius);
+    if (color != null) canvas.setColor(color);
     canvas.setFilled(true);
     canvas.setHidden(false);
     canvas.repaint();
@@ -115,6 +132,19 @@ public class CircleDraw
       colorChooserFrame.setAlwaysOnTop(true);
       colorChooserFrame.setResizable(false);
       colorChooser = new JColorChooser(Color.black);
+      colorChooser.getSelectionModel().addChangeListener(new ChangeListener()
+      {
+        public void stateChanged(ChangeEvent e)
+        {
+          SwingUtilities.invokeLater(new Runnable()
+          {
+            public void run()
+            {
+              CircleDraw.drawCircle();
+            }
+          });
+        }
+      });
       colorChooserFrame.add(colorChooser);
       colorChooserFrame.pack();
       colorChooserFrame.setLocationRelativeTo(null);
@@ -166,6 +196,18 @@ public class CircleDraw
 
 
     //Add ActionListeners
+    canvas.addMouseListener(new MouseListener()
+    {
+      public void mouseClicked(MouseEvent e) {}
+      public void mouseExited(MouseEvent e) {}
+      public void mouseEntered(MouseEvent e) {}
+      public void mousePressed(MouseEvent e)
+      {
+        Point point = e.getPoint();
+        drawCircle(point.x, point.y);
+      }
+      public void mouseReleased(MouseEvent e) {}
+    });
     SliderChangeListener changeListener = new SliderChangeListener();
     leftSlider.addChangeListener(changeListener);
     bottomSlider.addChangeListener(changeListener);
