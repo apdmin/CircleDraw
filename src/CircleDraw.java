@@ -81,8 +81,11 @@ public class CircleDraw
       Integer yCoord = new Integer(y);
       double yProportion = yCoord.doubleValue()/canvasHeight.doubleValue();
       double xProportion = xCoord.doubleValue()/canvasWidth.doubleValue();
+      SliderChangeListener.bypassDrawing = true;
       leftSlider.setValue((int)((1-yProportion)*sliderGradient));
       bottomSlider.setValue((int)(xProportion*sliderGradient));
+      SliderChangeListener.bypassDrawing = false;
+      drawCircle();
     }
   }
   public static void drawCircle()
@@ -221,6 +224,18 @@ public class CircleDraw
 
 
     //Add Listeners
+    canvas.addMouseListener(new MouseListener()
+    {
+      public void mouseClicked(MouseEvent e) {}
+      public void mouseEntered(MouseEvent e) {}
+      public void mouseExited(MouseEvent e) {}
+      public void mousePressed(MouseEvent e)
+      {
+        Point point = e.getPoint();
+        positionAndDrawCircle(point.x, point.y);
+      }
+      public void mouseReleased(MouseEvent e) {}
+    });
     canvas.addMouseMotionListener(new MouseMotionListener()
     {
       public void mouseDragged(MouseEvent e)

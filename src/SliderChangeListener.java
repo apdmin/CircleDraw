@@ -12,14 +12,18 @@ import javax.swing.SwingUtilities;
 
 public class SliderChangeListener implements ChangeListener
 {
+  public static boolean bypassDrawing = false;
   public void stateChanged(ChangeEvent e)
   {
-    SwingUtilities.invokeLater(new Runnable()
+    if (!bypassDrawing)
     {
-      public void run()
+      SwingUtilities.invokeLater(new Runnable()
       {
-        CircleDraw.drawCircle();
-      }
-    });
+        public void run()
+        {
+          CircleDraw.drawCircle();
+        }
+      });
+    }
   }
 }
