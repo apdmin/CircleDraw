@@ -44,7 +44,7 @@ public class CircleDraw
   private static CustomCanvas canvas;
   private static JSlider leftSlider, bottomSlider, sizeSlider;
   private static JButton showButton;
-  private static int sliderGradient;
+  private static final int sliderGradient = 2000;
 
 
 
@@ -54,7 +54,6 @@ public class CircleDraw
   {
     frame = new JFrame("Circle Draw");
     frame.setPreferredSize(new Dimension(800, 600));
-    sliderGradient = 2000;
     addComponentsToPane(frame.getContentPane());
     frame.pack();
     frame.setLocationRelativeTo(null);
