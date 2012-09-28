@@ -54,6 +54,7 @@ public class CircleDraw
   {
     frame = new JFrame("Circle Draw");
     frame.setPreferredSize(new Dimension(800, 600));
+    frame.setMinimumSize(new Dimension(350, 300));
     addComponentsToPane(frame.getContentPane());
     frame.pack();
     frame.setLocationRelativeTo(null);
@@ -62,7 +63,27 @@ public class CircleDraw
 
 
 
-  public static void resizeCircle(int amountToChangeRadius)
+  public static int getXCoord()
+  {
+    Integer inputX = new Integer(bottomSlider.getValue());
+    double xProportion = inputX.doubleValue()/sliderGradient;
+    int canvasWidth = canvas.getWidth();
+    int xCoordinate = (int)(canvasWidth*xProportion);
+    return xCoordinate;
+  }
+  public static int getYCoord()
+  {
+    Integer inputY = new Integer(leftSlider.getValue());
+    double yProportion = inputY.doubleValue()/sliderGradient;
+    int canvasHeight = canvas.getHeight();
+    int yCoordinate = (int)(canvasHeight*(1-yProportion));
+    return yCoordinate;
+  }
+  public static int getRadius() { return sizeSlider.getValue(); }
+  public static Color getColor() { return colorChooser == null ? Color.black : colorChooser.getColor(); }
+
+
+  private static void resizeCircle(int amountToChangeRadius)
   {
     if (showButton.getText().equals("Hide"))
     {
@@ -70,7 +91,7 @@ public class CircleDraw
     }
   }
 
-  public static void positionAndDrawCircle(int x, int y)
+  public static void setSlidersTo(int x, int y)
   {
     if (showButton.getText().equals("Hide"))
     {
@@ -84,13 +105,14 @@ public class CircleDraw
       leftSlider.setValue((int)((1-yProportion)*sliderGradient));
       bottomSlider.setValue((int)(xProportion*sliderGradient));
       SliderChangeListener.bypassDrawing = false;
-      drawCircle();
+      //drawCircle();
     }
   }
   public static void drawCircle()
   {
     if (showButton.getText().equals("Hide"))
     {
+      /*
       Integer inputY = new Integer(leftSlider.getValue());
       Integer inputX = new Integer(bottomSlider.getValue());
       System.out.println(inputY);
@@ -103,16 +125,11 @@ public class CircleDraw
       int canvasWidth = canvas.getWidth();
       int xCoordinate = (int)(canvasWidth*xProportion);
       int yCoordinate = (int)(canvasHeight*(1-yProportion));
-      Color color;
-      if (colorChooser == null)
-      {
-        color = Color.black;
-      }
-      else
-      {
-        color = colorChooser.getColor();
-      }
-      drawCircle(xCoordinate, yCoordinate, sizeSlider.getValue(), color);
+      */
+      //int xCoordinate = getXCoord();
+      //int yCoordinate = getYCoord();
+      //drawCircle(xCoordinate, yCoordinate, sizeSlider.getValue(), color);
+      canvas.repaint();
     }
   }
   public static void drawCircle(int x, int y)
@@ -124,30 +141,12 @@ public class CircleDraw
     canvas.setCircleCoordinates(x, y);
     canvas.setCircleRadius(radius);
     if (color != null) canvas.setColor(color);
-    canvas.setFilled(true);
+    //canvas.setFilled(true);
     canvas.setHidden(false);
     canvas.repaint();
   }
 
 
-  private static void showCircle()
-  {
-    if (showButton.getText().equals("Show"))
-    {
-      showButton.setText("Hide");
-      drawCircle();
-    }
-    else if (showButton.getText().equals("Hide"))
-    {
-      canvas.setHidden(true);
-      canvas.repaint();
-      showButton.setText("Show");
-    }
-    else
-    {
-      //Throw some exception
-    }
-  }
 
 
   
@@ -163,13 +162,7 @@ public class CircleDraw
       {
         public void stateChanged(ChangeEvent e)
         {
-          SwingUtilities.invokeLater(new Runnable()
-          {
-            public void run()
-            {
-              CircleDraw.drawCircle();
-            }
-          });
+          CircleDraw.drawCircle();
         }
       });
       colorChooserFrame.add(colorChooser);
@@ -191,13 +184,6 @@ public class CircleDraw
     canvas = new CustomCanvas();
     SpringLayout frameLayout = new SpringLayout();
     frame.setLayout(frameLayout);
-    /*
-    JPanel inputPanel = new JPanel();
-    SpringLayout inputPanelLayout = new SpringLayout();
-    inputPanel.setLayout(inputPanelLayout);
-    */
-
-
 
     leftSlider = new JSlider();
     leftSlider.setOrientation(SwingConstants.VERTICAL);
@@ -213,144 +199,152 @@ public class CircleDraw
     bottomSlider.setMinimum(0);
     bottomSlider.setMaximum(sliderGradient);
     bottomSlider.setValue(sliderGradient/2);
+
     sizeSlider = new JSlider();
     sizeSlider.setMinimum(5);
     sizeSlider.setMaximum(300);
     sizeSlider.setValue(50);
+
     showButton = new JButton("Show");
     showButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+
     JButton colorButton = new JButton("Color Chooser");
 
 
-    //Add Listeners
-    canvas.addMouseListener(new MouseListener()
-    {
-      public void mouseClicked(MouseEvent e) {}
-      public void mouseEntered(MouseEvent e) {}
-      public void mouseExited(MouseEvent e) {}
-      public void mousePressed(MouseEvent e)
+    //-------------------- Add Listeners --------------------
+      canvas.addMouseListener(new MouseListener()
       {
-        Point point = e.getPoint();
-        positionAndDrawCircle(point.x, point.y);
-      }
-      public void mouseReleased(MouseEvent e) {}
-    });
-    canvas.addMouseMotionListener(new MouseMotionListener()
-    {
-      public void mouseDragged(MouseEvent e)
-      {
-        Point point = e.getPoint();
-        positionAndDrawCircle(point.x, point.y);
-      }
-      public void mouseMoved(MouseEvent e) {}
-    });
-    canvas.addMouseWheelListener(new MouseWheelListener()
-    {
-      public void mouseWheelMoved(MouseWheelEvent e)
-      {
-        int unitsToScroll = e.getUnitsToScroll();
-        resizeCircle(unitsToScroll);
-      }
-    });
-    SliderChangeListener changeListener = new SliderChangeListener();
-    leftSlider.addChangeListener(changeListener);
-    bottomSlider.addChangeListener(changeListener);
-    sizeSlider.addChangeListener(changeListener);
-    showButton.addActionListener(new ActionListener()
-    {
-      public void actionPerformed(ActionEvent e)
-      {
-        SwingUtilities.invokeLater(new Runnable()
+        public void mouseClicked(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {}
+        public void mouseExited(MouseEvent e) {}
+        public void mousePressed(MouseEvent e)
         {
-          public void run()
+          if (showButton.getText().equals("Hide"))
           {
-            showCircle();
+            if (e.getButton() == MouseEvent.BUTTON1)
+            {
+              Point point = e.getPoint();
+              setSlidersTo(point.x, point.y);
+              drawCircle();
+            }
+            else if (e.getButton() == MouseEvent.BUTTON3)
+            {
+              canvas.setFilled(!canvas.isFilled());
+              drawCircle();
+            }
           }
-        });
-      }
-    });
+        }
+        public void mouseReleased(MouseEvent e) {}
+      });
 
-    colorButton.addActionListener(new ActionListener()
-    {
-      public void actionPerformed(ActionEvent e)
+      canvas.addMouseMotionListener(new MouseMotionListener()
       {
-        SwingUtilities.invokeLater(new Runnable()
+        public void mouseDragged(MouseEvent e)
         {
-          public void run()
+          if (e.getButton() == MouseEvent.BUTTON1 && showButton.getText().equals("Hide"))
           {
-            displayColorChooser();
+            Point point = e.getPoint();
+            setSlidersTo(point.x, point.y);
+            drawCircle();
           }
-        });
-      }
-    });
+        }
+        public void mouseMoved(MouseEvent e) {}
+      });
+
+      canvas.addMouseWheelListener(new MouseWheelListener()
+      {
+        public void mouseWheelMoved(MouseWheelEvent e)
+        {
+          int unitsToScroll = e.getUnitsToScroll();
+          resizeCircle(unitsToScroll);
+        }
+      });
+
+      SliderChangeListener changeListener = new SliderChangeListener();
+      leftSlider.addChangeListener(changeListener);
+      bottomSlider.addChangeListener(changeListener);
+      sizeSlider.addChangeListener(changeListener);
+
+      showButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          //showCircle();
+          if (showButton.getText().equals("Show"))
+          {
+            showButton.setText("Hide");
+            canvas.setHidden(false);
+            drawCircle();
+          }
+          else if (showButton.getText().equals("Hide"))
+          {
+            showButton.setText("Show");
+            canvas.setHidden(true);
+            canvas.repaint();
+          }
+          else
+          {
+            //Throw some exception
+          }
+        }
+      });
+
+      colorButton.addActionListener(new ActionListener()
+      {
+        public void actionPerformed(ActionEvent e)
+        {
+          displayColorChooser();
+        }
+      });
 
 
-    //Layout Setup
-    //int cornerSquare = 10;
-    int sliderYMargin = 14;
-    int sliderXMargin = 13;
-    int xMargin = 5;
-    int yMargin = 5;
+    //-------------------- Layout Setup --------------------
+      int sliderYMargin = 14;
+      int sliderXMargin = 13;
+      int xMargin = 5;
+      int yMargin = 5;
 
-    frameLayout.putConstraint(SpringLayout.SOUTH, colorButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.WEST, colorButton, xMargin, SpringLayout.WEST, contentPane);
+      frameLayout.putConstraint(SpringLayout.SOUTH, colorButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
+      frameLayout.putConstraint(SpringLayout.WEST, colorButton, xMargin, SpringLayout.WEST, contentPane);
 
-    frameLayout.putConstraint(SpringLayout.SOUTH, showButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.EAST, showButton, -1*xMargin, SpringLayout.EAST, contentPane);
+      frameLayout.putConstraint(SpringLayout.SOUTH, showButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
+      frameLayout.putConstraint(SpringLayout.EAST, showButton, -1*xMargin, SpringLayout.EAST, contentPane);
 
-    frameLayout.putConstraint(SpringLayout.SOUTH, sizeSlider, -1*yMargin, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.EAST, sizeSlider, 0, SpringLayout.WEST, showButton);
-    frameLayout.putConstraint(SpringLayout.WEST, sizeSlider, 0, SpringLayout.EAST, colorButton);
+      frameLayout.putConstraint(SpringLayout.SOUTH, sizeSlider, -1*yMargin, SpringLayout.SOUTH, contentPane);
+      frameLayout.putConstraint(SpringLayout.EAST, sizeSlider, 0, SpringLayout.WEST, showButton);
+      frameLayout.putConstraint(SpringLayout.WEST, sizeSlider, 0, SpringLayout.EAST, colorButton);
 
-    frameLayout.putConstraint(SpringLayout.SOUTH, bottomSlider, 0, SpringLayout.NORTH, sizeSlider);
-    frameLayout.putConstraint(SpringLayout.EAST, bottomSlider, -1*xMargin,  SpringLayout.EAST, contentPane);
-    frameLayout.putConstraint(SpringLayout.WEST, bottomSlider, -1 * sliderXMargin,  SpringLayout.EAST, leftSlider);
+      frameLayout.putConstraint(SpringLayout.SOUTH, bottomSlider, 0, SpringLayout.NORTH, sizeSlider);
+      frameLayout.putConstraint(SpringLayout.EAST, bottomSlider, -1*xMargin,  SpringLayout.EAST, contentPane);
+      frameLayout.putConstraint(SpringLayout.WEST, bottomSlider, -1 * sliderXMargin,  SpringLayout.EAST, leftSlider);
 
 
-    frameLayout.putConstraint(SpringLayout.NORTH, leftSlider, yMargin, SpringLayout.NORTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.SOUTH, leftSlider, sliderYMargin, SpringLayout.NORTH, bottomSlider);
-    frameLayout.putConstraint(SpringLayout.WEST, leftSlider, xMargin, SpringLayout.WEST, contentPane);
+      frameLayout.putConstraint(SpringLayout.NORTH, leftSlider, yMargin, SpringLayout.NORTH, contentPane);
+      frameLayout.putConstraint(SpringLayout.SOUTH, leftSlider, sliderYMargin, SpringLayout.NORTH, bottomSlider);
+      frameLayout.putConstraint(SpringLayout.WEST, leftSlider, xMargin, SpringLayout.WEST, contentPane);
 
-    frameLayout.putConstraint(SpringLayout.NORTH, canvas, sliderYMargin+yMargin, SpringLayout.NORTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.SOUTH, canvas, 0, SpringLayout.NORTH, bottomSlider);
-    frameLayout.putConstraint(SpringLayout.EAST, canvas, -1*sliderXMargin-xMargin, SpringLayout.EAST, contentPane);
-    frameLayout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.EAST, leftSlider);
+      frameLayout.putConstraint(SpringLayout.NORTH, canvas, sliderYMargin+yMargin, SpringLayout.NORTH, contentPane);
+      frameLayout.putConstraint(SpringLayout.SOUTH, canvas, 0, SpringLayout.NORTH, bottomSlider);
+      frameLayout.putConstraint(SpringLayout.EAST, canvas, -1*sliderXMargin-xMargin, SpringLayout.EAST, contentPane);
+      frameLayout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.EAST, leftSlider);
 
-    /*
-    frameLayout.putConstraint(SpringLayout.SOUTH, inputPanel, 0, SpringLayout.SOUTH, contentPane);
-    frameLayout.putConstraint(SpringLayout.EAST, inputPanel, 0, SpringLayout.EAST, contentPane);
-    frameLayout.putConstraint(SpringLayout.WEST, inputPanel, cornerSquare, SpringLayout.WEST, contentPane);
-    */
 
-    contentPane.add(canvas);
-    contentPane.add(leftSlider);
-    contentPane.add(bottomSlider);
-    contentPane.add(sizeSlider);
-    contentPane.add(colorButton);
-    contentPane.add(showButton);
-    /*
-    contentPane.add(rightSlider, BorderLayout.LINE_END);
-    contentPane.add(topSlider, BorderLayout.PAGE_START);
-    */
-    /*
-    inputPanelLayout.putConstraint(SpringLayout.NORTH, bottomSlider, 0, SpringLayout.NORTH, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.EAST, bottomSlider, 0,  SpringLayout.EAST, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.WEST, bottomSlider, 0,  SpringLayout.WEST, inputPanel);
-
-    inputPanelLayout.putConstraint(SpringLayout.NORTH, dropDown, 0, SpringLayout.SOUTH, bottomSlider);
-    inputPanelLayout.putConstraint(SpringLayout.SOUTH, dropDown, 0, SpringLayout.SOUTH, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.EAST, dropDown, 0, SpringLayout.HORIZONTAL_CENTER, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.NORTH, showButton, 0, SpringLayout.SOUTH, bottomSlider);
-    inputPanelLayout.putConstraint(SpringLayout.WEST, showButton, 0, SpringLayout.HORIZONTAL_CENTER, inputPanel);
-    inputPanelLayout.putConstraint(SpringLayout.SOUTH, showButton, 0, SpringLayout.SOUTH, inputPanel);
-    inputPanel.add(bottomSlider);
-    //inputPanel.setPreferredSize(new Dimension(frame.getWidth(), 60));
-    inputPanel.add(dropDown);
-    inputPanel.add(showButton);
-    */
-
-    //contentPane.add(inputPanel, BorderLayout.PAGE_END);
+    //-------------------- Add components to content pane --------------------
+      contentPane.add(canvas);
+      contentPane.add(leftSlider);
+      contentPane.add(bottomSlider);
+      contentPane.add(sizeSlider);
+      contentPane.add(colorButton);
+      contentPane.add(showButton);
+      /*
+      contentPane.add(rightSlider, BorderLayout.LINE_END);
+      contentPane.add(topSlider, BorderLayout.PAGE_START);
+      */
   }
+
+
+
+
   public static void main(String[] args)
   {
     SwingUtilities.invokeLater(new Runnable()

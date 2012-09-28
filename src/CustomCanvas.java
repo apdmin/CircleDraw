@@ -13,13 +13,15 @@ import java.awt.Graphics;
 public class CustomCanvas extends Canvas
 {
   private int x, y, radius;
-  private boolean filled, hidden;
+  private boolean filled = true;
+  private boolean hidden = true;
   private Color color;
 
   public void setCircleCoordinates(int x, int y) { this.x = x; this.y = y; }
   public void setCircleRadius(int radius) { this.radius = radius; }
   public int getCircleRadius() { return radius; }
   public void setFilled(boolean filled) { this.filled = filled; }
+  public boolean isFilled() { return filled; }
   public void setHidden(boolean hidden) { this.hidden = hidden; }
   public void setColor(Color color) { this.color = color; }
 
@@ -42,14 +44,10 @@ public class CustomCanvas extends Canvas
   {
     if (!hidden)
     {
-      if (color == null)
-      {
-        g.setColor(Color.black);
-      }
-      else
-      {
-        g.setColor(color);
-      }
+      g.setColor(CircleDraw.getColor());
+      x = CircleDraw.getXCoord();
+      y = CircleDraw.getYCoord();
+      radius = CircleDraw.getRadius();
       if (filled)
       {
         g.fillOval(x-radius, y-radius, radius*2, radius*2);
