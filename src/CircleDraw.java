@@ -10,6 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -27,6 +29,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JWindow;
@@ -91,7 +94,7 @@ public class CircleDraw
     }
   }
 
-  public static void setSlidersTo(int x, int y)
+  private static void setSlidersTo(int x, int y)
   {
     if (showButton.getText().equals("Hide"))
     {
@@ -108,42 +111,12 @@ public class CircleDraw
       //drawCircle();
     }
   }
-  public static void drawCircle()
+  protected static void drawCircle()
   {
     if (showButton.getText().equals("Hide"))
     {
-      /*
-      Integer inputY = new Integer(leftSlider.getValue());
-      Integer inputX = new Integer(bottomSlider.getValue());
-      System.out.println(inputY);
-      System.out.println(inputX);
-      double yProportion = inputY.doubleValue()/sliderGradient;
-      double xProportion = inputX.doubleValue()/sliderGradient;
-      System.out.println("yProportion = " + yProportion);
-      System.out.println("xProportion = " + xProportion);
-      int canvasHeight = canvas.getHeight();
-      int canvasWidth = canvas.getWidth();
-      int xCoordinate = (int)(canvasWidth*xProportion);
-      int yCoordinate = (int)(canvasHeight*(1-yProportion));
-      */
-      //int xCoordinate = getXCoord();
-      //int yCoordinate = getYCoord();
-      //drawCircle(xCoordinate, yCoordinate, sizeSlider.getValue(), color);
       canvas.repaint();
     }
-  }
-  public static void drawCircle(int x, int y)
-  {
-    drawCircle(x, y, sizeSlider.getValue(), null);
-  }
-  public static void drawCircle(int x, int y, int radius, Color color)
-  {
-    canvas.setCircleCoordinates(x, y);
-    canvas.setCircleRadius(radius);
-    if (color != null) canvas.setColor(color);
-    //canvas.setFilled(true);
-    canvas.setHidden(false);
-    canvas.repaint();
   }
 
 
@@ -171,6 +144,23 @@ public class CircleDraw
     }
     if (!colorChooserFrame.isVisible())
     {
+      Point frameLocation = frame.getLocationOnScreen();
+      int frameWidth = frame.getWidth();
+      Toolkit toolkit = Toolkit.getDefaultToolkit();
+      Dimension screenSize = toolkit.getScreenSize();
+      int colorChooserWidth = colorChooserFrame.getWidth();
+      if (frameLocation.x + frameWidth + colorChooserWidth < screenSize.width)
+      {
+        colorChooserFrame.setLocation(frameLocation.x + frameWidth, frameLocation.y);
+      }
+      else if (frameLocation.x  - colorChooserWidth >= 0)
+      {
+        colorChooserFrame.setLocation(frameLocation.x - colorChooserWidth, frameLocation.y);
+      }
+      else
+      {
+        colorChooserFrame.setLocation(frameLocation.x + frameWidth, frameLocation.y);
+      }
       colorChooserFrame.setVisible(true);
     }
   }
@@ -211,91 +201,98 @@ public class CircleDraw
     JButton colorButton = new JButton("Color Chooser");
 
 
+
+
     //-------------------- Add Listeners --------------------
-      canvas.addMouseListener(new MouseListener()
-      {
-        public void mouseClicked(MouseEvent e) {}
-        public void mouseEntered(MouseEvent e) {}
-        public void mouseExited(MouseEvent e) {}
-        public void mousePressed(MouseEvent e)
+      //--------------- Mouse Listeners ---------------
+        canvas.addMouseListener(new MouseListener()
         {
-          if (showButton.getText().equals("Hide"))
+          public void mouseClicked(MouseEvent e) {}
+          public void mouseEntered(MouseEvent e) {}
+          public void mouseExited(MouseEvent e) {}
+          public void mousePressed(MouseEvent e)
           {
-            if (e.getButton() == MouseEvent.BUTTON1)
+            if (showButton.getText().equals("Hide"))
+            {
+              if (e.getButton() == MouseEvent.BUTTON1)
+              {
+                Point point = e.getPoint();
+                setSlidersTo(point.x, point.y);
+                drawCircle();
+              }
+              else if (e.getButton() == MouseEvent.BUTTON3)
+              {
+                canvas.setFilled(!canvas.isFilled());
+                drawCircle();
+              }
+            }
+          }
+          public void mouseReleased(MouseEvent e) {}
+        });
+
+        canvas.addMouseMotionListener(new MouseMotionListener()
+        {
+          public void mouseDragged(MouseEvent e)
+          {
+            if (e.getButton() == MouseEvent.BUTTON1 && showButton.getText().equals("Hide"))
             {
               Point point = e.getPoint();
               setSlidersTo(point.x, point.y);
               drawCircle();
             }
-            else if (e.getButton() == MouseEvent.BUTTON3)
+          }
+          public void mouseMoved(MouseEvent e) {}
+        });
+
+        canvas.addMouseWheelListener(new MouseWheelListener()
+        {
+          public void mouseWheelMoved(MouseWheelEvent e)
+          {
+            int unitsToScroll = e.getUnitsToScroll();
+            resizeCircle(unitsToScroll);
+          }
+        });
+
+      //--------------- Slider Listeners ---------------
+        SliderChangeListener changeListener = new SliderChangeListener();
+        leftSlider.addChangeListener(changeListener);
+        bottomSlider.addChangeListener(changeListener);
+        sizeSlider.addChangeListener(changeListener);
+
+      //--------------- Button/Action Listeners ---------------
+        showButton.addActionListener(new ActionListener()
+        {
+          public void actionPerformed(ActionEvent e)
+          {
+            if (showButton.getText().equals("Show"))
             {
-              canvas.setFilled(!canvas.isFilled());
+              showButton.setText("Hide");
+              canvas.setHidden(false);
               drawCircle();
             }
+            else if (showButton.getText().equals("Hide"))
+            {
+              showButton.setText("Show");
+              canvas.setHidden(true);
+              canvas.repaint();
+            }
+            else
+            {
+              JOptionPane.showMessageDialog(frame, "'Show' button text was set to some invalid value. Please restart this application", "Error", JOptionPane.OK_OPTION);
+              frame.dispose();
+              if (colorChooserFrame != null) colorChooserFrame.dispose();
+              System.exit(0);
+            }
           }
-        }
-        public void mouseReleased(MouseEvent e) {}
-      });
+        });
 
-      canvas.addMouseMotionListener(new MouseMotionListener()
-      {
-        public void mouseDragged(MouseEvent e)
+        colorButton.addActionListener(new ActionListener()
         {
-          if (e.getButton() == MouseEvent.BUTTON1 && showButton.getText().equals("Hide"))
+          public void actionPerformed(ActionEvent e)
           {
-            Point point = e.getPoint();
-            setSlidersTo(point.x, point.y);
-            drawCircle();
+            displayColorChooser();
           }
-        }
-        public void mouseMoved(MouseEvent e) {}
-      });
-
-      canvas.addMouseWheelListener(new MouseWheelListener()
-      {
-        public void mouseWheelMoved(MouseWheelEvent e)
-        {
-          int unitsToScroll = e.getUnitsToScroll();
-          resizeCircle(unitsToScroll);
-        }
-      });
-
-      SliderChangeListener changeListener = new SliderChangeListener();
-      leftSlider.addChangeListener(changeListener);
-      bottomSlider.addChangeListener(changeListener);
-      sizeSlider.addChangeListener(changeListener);
-
-      showButton.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          //showCircle();
-          if (showButton.getText().equals("Show"))
-          {
-            showButton.setText("Hide");
-            canvas.setHidden(false);
-            drawCircle();
-          }
-          else if (showButton.getText().equals("Hide"))
-          {
-            showButton.setText("Show");
-            canvas.setHidden(true);
-            canvas.repaint();
-          }
-          else
-          {
-            //Throw some exception
-          }
-        }
-      });
-
-      colorButton.addActionListener(new ActionListener()
-      {
-        public void actionPerformed(ActionEvent e)
-        {
-          displayColorChooser();
-        }
-      });
+        });
 
 
     //-------------------- Layout Setup --------------------

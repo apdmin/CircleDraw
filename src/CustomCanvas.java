@@ -25,21 +25,6 @@ public class CustomCanvas extends Canvas
   public void setHidden(boolean hidden) { this.hidden = hidden; }
   public void setColor(Color color) { this.color = color; }
 
-  public void setColor(int color)
-  {
-    switch(color)
-    {
-      case 0:
-        this.color = Color.red;
-        break;
-      case 1:
-        this.color = Color.blue;
-        break;
-      default:
-        this.color = Color.black;
-    }
-  }
-
   public void paint(Graphics g)
   {
     if (!hidden)

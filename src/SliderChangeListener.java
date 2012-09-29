@@ -17,13 +17,7 @@ public class SliderChangeListener implements ChangeListener
   {
     if (!bypassDrawing)
     {
-      SwingUtilities.invokeLater(new Runnable()
-      {
-        public void run()
-        {
-          CircleDraw.drawCircle();
-        }
-      });
+      CircleDraw.drawCircle();
     }
   }
 }
