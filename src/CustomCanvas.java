@@ -42,7 +42,9 @@ public class CustomCanvas extends Canvas
         g.drawOval(x-radius, y-radius, radius*2, radius*2);
       }
     }
+    /*
     g.setColor(Color.black);
     g.drawRect(0, 0, this.getWidth()-1, this.getHeight()-1);
+    */
   }
 }

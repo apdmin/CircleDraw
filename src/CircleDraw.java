@@ -8,6 +8,7 @@ Fall 2012
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -21,6 +22,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.Graphics;
 import java.awt.Point;
+import javax.swing.border.MatteBorder;
 import javax.swing.BoxLayout;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -33,10 +35,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JWindow;
+import javax.swing.plaf.*;
 import javax.swing.SpringLayout;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class CircleDraw
 {
@@ -45,6 +50,7 @@ public class CircleDraw
   private static JFrame frame, colorChooserFrame;
   private static JColorChooser colorChooser;
   private static CustomCanvas canvas;
+  private static JPanel canvasPanel;
   private static JSlider leftSlider, bottomSlider, sizeSlider;
   private static JButton showButton;
   private static final int sliderGradient = 2000;
@@ -58,6 +64,7 @@ public class CircleDraw
     frame = new JFrame("Circle Draw");
     frame.setPreferredSize(new Dimension(800, 600));
     frame.setMinimumSize(new Dimension(350, 300));
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     addComponentsToPane(frame.getContentPane());
     frame.pack();
     frame.setLocationRelativeTo(null);
@@ -159,7 +166,7 @@ public class CircleDraw
       }
       else
       {
-        colorChooserFrame.setLocation(frameLocation.x + frameWidth, frameLocation.y);
+        colorChooserFrame.setLocation(screenSize.width-colorChooserWidth, frameLocation.y);
       }
       colorChooserFrame.setVisible(true);
     }
@@ -171,7 +178,11 @@ public class CircleDraw
 
   private static void addComponentsToPane(Container contentPane)
   {
+    canvasPanel = new JPanel();
+    canvasPanel.setLayout(new BorderLayout());
+    canvasPanel.setBorder(new MatteBorder(1, 1, 1, 1, Color.black));
     canvas = new CustomCanvas();
+    //canvasPanel.add(canvas, BorderLayout.CENTER);
     SpringLayout frameLayout = new SpringLayout();
     frame.setLayout(frameLayout);
 
@@ -296,10 +307,11 @@ public class CircleDraw
 
 
     //-------------------- Layout Setup --------------------
-      int sliderYMargin = 14;
-      int sliderXMargin = 13;
-      int xMargin = 5;
-      int yMargin = 5;
+      //int sliderYMargin = 14;
+      //int sliderXMargin = 13;
+      int xMargin = 10;
+      int yMargin = 10;
+      int sliderBarWidth = 7;
 
       frameLayout.putConstraint(SpringLayout.SOUTH, colorButton, -1*yMargin, SpringLayout.SOUTH, contentPane);
       frameLayout.putConstraint(SpringLayout.WEST, colorButton, xMargin, SpringLayout.WEST, contentPane);
@@ -308,26 +320,30 @@ public class CircleDraw
       frameLayout.putConstraint(SpringLayout.EAST, showButton, -1*xMargin, SpringLayout.EAST, contentPane);
 
       frameLayout.putConstraint(SpringLayout.SOUTH, sizeSlider, -1*yMargin, SpringLayout.SOUTH, contentPane);
-      frameLayout.putConstraint(SpringLayout.EAST, sizeSlider, 0, SpringLayout.WEST, showButton);
-      frameLayout.putConstraint(SpringLayout.WEST, sizeSlider, 0, SpringLayout.EAST, colorButton);
+      frameLayout.putConstraint(SpringLayout.EAST, sizeSlider, -1*xMargin, SpringLayout.WEST, showButton);
+      frameLayout.putConstraint(SpringLayout.WEST, sizeSlider, xMargin, SpringLayout.EAST, colorButton);
 
-      frameLayout.putConstraint(SpringLayout.SOUTH, bottomSlider, 0, SpringLayout.NORTH, sizeSlider);
+
+      Component tallestComponent = sizeSlider.getHeight() > showButton.getHeight() ? sizeSlider : showButton;
+
+      frameLayout.putConstraint(SpringLayout.SOUTH, bottomSlider, -1*yMargin, SpringLayout.NORTH, tallestComponent);
       frameLayout.putConstraint(SpringLayout.EAST, bottomSlider, -1*xMargin,  SpringLayout.EAST, contentPane);
-      frameLayout.putConstraint(SpringLayout.WEST, bottomSlider, -1 * sliderXMargin,  SpringLayout.EAST, leftSlider);
+      frameLayout.putConstraint(SpringLayout.WEST, bottomSlider, 0,  SpringLayout.EAST, leftSlider);
 
 
       frameLayout.putConstraint(SpringLayout.NORTH, leftSlider, yMargin, SpringLayout.NORTH, contentPane);
-      frameLayout.putConstraint(SpringLayout.SOUTH, leftSlider, sliderYMargin, SpringLayout.NORTH, bottomSlider);
+      frameLayout.putConstraint(SpringLayout.SOUTH, leftSlider, 0, SpringLayout.NORTH, bottomSlider);
       frameLayout.putConstraint(SpringLayout.WEST, leftSlider, xMargin, SpringLayout.WEST, contentPane);
 
-      frameLayout.putConstraint(SpringLayout.NORTH, canvas, sliderYMargin+yMargin, SpringLayout.NORTH, contentPane);
-      frameLayout.putConstraint(SpringLayout.SOUTH, canvas, 0, SpringLayout.NORTH, bottomSlider);
-      frameLayout.putConstraint(SpringLayout.EAST, canvas, -1*sliderXMargin-xMargin, SpringLayout.EAST, contentPane);
-      frameLayout.putConstraint(SpringLayout.WEST, canvas, 0, SpringLayout.EAST, leftSlider);
+      frameLayout.putConstraint(SpringLayout.NORTH, canvasPanel, yMargin+sliderBarWidth, SpringLayout.NORTH, contentPane);
+      frameLayout.putConstraint(SpringLayout.SOUTH, canvasPanel, -1*sliderBarWidth, SpringLayout.NORTH, bottomSlider);
+      frameLayout.putConstraint(SpringLayout.EAST, canvasPanel, -1*(sliderBarWidth+xMargin), SpringLayout.EAST, contentPane);
+      frameLayout.putConstraint(SpringLayout.WEST, canvasPanel, sliderBarWidth, SpringLayout.EAST, leftSlider);
 
 
     //-------------------- Add components to content pane --------------------
-      contentPane.add(canvas);
+      canvasPanel.add(canvas, BorderLayout.CENTER);
+      contentPane.add(canvasPanel);
       contentPane.add(leftSlider);
       contentPane.add(bottomSlider);
       contentPane.add(sizeSlider);
@@ -344,6 +360,22 @@ public class CircleDraw
 
   public static void main(String[] args)
   {
+    try
+    {
+      UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+    }
+    catch (UnsupportedLookAndFeelException e)
+    {
+    }
+    catch (ClassNotFoundException e)
+    {
+    }
+    catch (InstantiationException e)
+    {
+    }
+    catch (IllegalAccessException e)
+    {
+    }
     SwingUtilities.invokeLater(new Runnable()
     {
       public void run()
