@@ -42,6 +42,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+//import com.jtattoo.plaf.*;
 
 public class CircleDraw
 {
@@ -245,7 +246,7 @@ public class CircleDraw
         {
           public void mouseDragged(MouseEvent e)
           {
-            if (e.getButton() == MouseEvent.BUTTON1 && showButton.getText().equals("Hide"))
+            if (showButton.getText().equals("Hide"))
             {
               Point point = e.getPoint();
               setSlidersTo(point.x, point.y);
@@ -363,6 +364,7 @@ public class CircleDraw
     try
     {
       UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+      //UIManager.setLookAndFeel("com.jtattoo.plaf.hifi.HiFiLookAndFeel");
     }
     catch (UnsupportedLookAndFeelException e)
     {
